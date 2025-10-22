@@ -1,384 +1,324 @@
 # ERP AI Agent Demo
 
-一个展示AI Agent如何提升ERP系统便利性的演示项目。通过自然语言指令，Agent可以自动完成ERP系统中的各种任务。
+一個展示 AI Agent 如何提升 ERP 系統便利性的專業演示項目。通過自然語言指令，Agent 可以自動完成 ERP 系統中的各種任務。
 
-## 项目概述
+## 🌟 項目特色
 
-本项目包含两个主要部分：
+- ✅ **專業 UI/UX**：現代化企業級界面設計，側邊欄導航
+- ✅ **真實數據**：27種真實產品，25筆歷史訂單，6家客戶公司
+- ✅ **LLM 驅動**：使用 Ollama 本地大語言模型，完全免費
+- ✅ **即時儀表板**：實時統計本月訂單、營收、庫存預警
 
-1. **模拟ERP系统** - 一个完整的Web应用，包含订单管理、库存管理和报表功能
-2. **AI Agent程序** - 一个智能代理，可以理解自然语言指令并自动调用ERP系统API完成任务
+## 項目概述
+
+本項目包含兩個主要部分：
+
+1. **專業 ERP 系統** - 完整的 Web 應用，包含訂單管理、庫存管理、數據報表和 AI 助手
+2. **LLM AI Agent** - 智能代理，可以理解自然語言指令並自動調用 ERP 系統 API 完成任務
 
 ## 功能特性
 
-### ERP系统功能
+### ERP 系統功能
 
-#### 1. 订单管理 (orders.html)
-- 创建新订单
-- 查看订单列表
-- 更新订单状态（完成/取消）
-- 查看订单详情
+#### 1. 系統儀表板 (index.html)
+- 實時數據統計卡片（本月訂單、營收、庫存預警、待處理訂單）
+- 快速功能入口
+- AI Agent 狀態顯示
 
-#### 2. 库存管理 (inventory.html)
-- 查看产品库存
-- 库存预警
-- 产品补货
-- 库存状态监控
+#### 2. 訂單管理 (orders.html)
+- 創建新訂單（支持多產品、客戶資訊、配送地址）
+- 查看訂單列表（顯示訂單編號、客戶、狀態）
+- 更新訂單狀態（待處理→處理中→已完成/已取消）
+- 查看訂單詳情（包含完整訂單資訊和訂單項目）
 
-#### 3. 数据报表 (reports.html)
-- 销售统计报表
-- 库存分析报表
-- 热销产品排行
-- 低库存产品提醒
+#### 3. 庫存管理 (inventory.html)
+- 查看產品庫存（SKU、類別、供應商）
+- 庫存預警自動提示
+- 產品補貨操作
+- 庫存狀態即時監控
 
-### AI Agent功能
+#### 4. 數據報表 (reports.html)
+- 銷售統計報表（訂單數、營收、完成率）
+- 庫存分析報表（產品總數、庫存價值）
+- 熱銷產品 TOP 5
+- 低庫存產品提醒
 
-**本项目提供两个版本的AI Agent：**
+#### 5. AI 助手 (浮動聊天窗口) 🆕
+- **浮動 AI 聊天按鈕**：右下角常駐，隨時可用
+- **真實 LLM 整合**：連接 Ollama + Qwen 2.5 7B 模型
+- **自然語言交互**：用日常語言完成所有 ERP 操作
+- **智能工具調用**：自動執行查詢、創建訂單、補貨等操作
+- **對話記憶**：保持上下文，支持多輪對話
 
-#### 版本1：规则版 (agent.py)
-- 基于正则表达式的任务解析
-- 快速响应，无需额外配置
-- 支持预定义的指令模式
+### AI Agent 功能 (LLM 版)
 
-#### 版本2：LLM版 (llm_agent.py) ⭐ 推荐
-- 使用Ollama本地大语言模型
-- 理解自然语言，更智能更灵活
-- 支持复杂的多步骤任务
-- **完全免费，无需API密钥**
+使用 Ollama 本地大語言模型，理解自然語言，更智能更靈活。
 
-#### 规则版支持的指令
+**支持的自然語言指令範例：**
 
-**订单相关：**
 ```
-创建订单，客户是ABC公司，产品是笔记本电脑10台
-查询所有订单
-查询客户ABC公司的订单
-完成订单 #1
-取消订单 #2
-```
+訂單相關：
+- 幫我給台北科技公司下個訂單，買10台 Dell Latitude 筆記本
+- 查一下所有訂單
+- 把訂單 ORD241012 標記為完成
 
-**库存相关：**
-```
-查询库存
-查询笔记本电脑的库存
-查询库存不足的产品
-给打印机补货20台
-给键盘补货50个
-```
+庫存相關：
+- 查一下哪些產品庫存不夠了
+- 給庫存最少的產品補貨50個
+- 查看 Logitech 產品的庫存
 
-**报表相关：**
-```
-查看销售报表
-查看库存报表
-销售统计
-库存数据
+報表相關：
+- 告訴我這個月的銷售情況
+- 哪個產品最熱銷？
+- 庫存總價值是多少？
 ```
 
-#### LLM版支持的指令（更灵活）
+## 技術棧
 
-**任何自然的表达方式：**
-```
-帮我给ABC公司下个订单，买10台笔记本电脑
-查一下哪些产品库存不够了
-给库存最少的产品补货50个
-把1号订单标记为完成
-告诉我这个月的销售情况
-哪个产品最热销？
-库存总价值是多少？
-```
-
-## 技术栈
-
-### ERP系统
-- **后端**: Python + FastAPI
-- **前端**: HTML + JavaScript + Bootstrap
-- **数据库**: SQLite
+### ERP 系統
+- **後端**: Python + FastAPI
+- **前端**: HTML + JavaScript + Bootstrap 5
+- **數據庫**: SQLite
 - **API**: RESTful API
+- **UI/UX**: 專業企業級設計，側邊導航，響應式布局
 
 ### AI Agent
+- **語言**: Python
+- **LLM 引擎**: Ollama (本地運行)
+- **推薦模型**: Qwen 2.5 7B
+- **Function Calling**: 自動工具調用
+- **完全免費**: 無需 API 密鑰
 
-**规则版 (agent.py):**
-- **语言**: Python
-- **自然语言处理**: 基于规则的任务解析器
-- **HTTP客户端**: Requests
-- **终端美化**: Colorama
+## 數據庫內容
 
-**LLM版 (llm_agent.py):**
-- **语言**: Python
-- **LLM引擎**: Ollama (本地运行)
-- **推荐模型**: Qwen 2.5, Llama 3.2, Gemma 2
-- **Function Calling**: 自动工具调用
-- **完全免费**: 无需API密钥
+系統包含豐富的真實模擬數據：
 
-## 项目结构
+### 產品 (27 種)
+- **筆記本電腦**: Dell Latitude 5420, HP EliteBook 840 G8, Lenovo ThinkPad X1 Carbon Gen 9, ASUS VivoBook 15
+- **台式電腦**: Dell OptiPlex 7090, HP ProDesk 600 G6, Lenovo ThinkCentre M90a
+- **顯示器**: Dell UltraSharp U2722DE, LG 27UP850-W 4K, ASUS ProArt PA247CV, BenQ GW2485TC
+- **鍵盤**: Logitech MX Keys, Keychron K2, Microsoft 人體工學鍵盤, Dell KB216
+- **滑鼠**: Logitech MX Master 3S, Microsoft Surface 精準滑鼠, HP X3000
+- **打印機**: HP LaserJet Pro M404n, Canon PIXMA G6070, Epson WorkForce WF-2950, Brother DCP-L2550DW
+- **網路設備**: TP-Link Archer AX73, ASUS RT-AX86U Pro
+- **配件**: WD My Passport 2TB, Seagate Backup Plus 4TB, Logitech C920 網路攝影機, APC UPS
 
-```
-AgentDemo/
-├── erp-system/              # ERP系统
-│   ├── backend/            # 后端API
-│   │   ├── main.py         # FastAPI应用主文件
-│   │   ├── database.py     # 数据库模型和连接
-│   │   ├── models.py       # Pydantic模型
-│   │   └── requirements.txt
-│   └── frontend/           # 前端页面
-│       ├── index.html      # 主页/导航页
-│       ├── orders.html     # 订单管理页面
-│       ├── inventory.html  # 库存管理页面
-│       └── reports.html    # 数据报表页面
-├── agent/                   # AI Agent程序
-│   ├── agent.py            # 规则版Agent
-│   ├── llm_agent.py        # LLM版Agent (推荐)
-│   ├── task_parser.py      # 任务解析器
-│   └── requirements.txt
-├── start_erp.sh            # ERP系统启动脚本
-├── start_agent.sh          # 规则版Agent启动脚本
-├── start_llm_agent.sh      # LLM版Agent启动脚本
-├── OLLAMA_SETUP.md         # Ollama安装配置指南
-└── README.md               # 项目文档
-```
+每個產品包含：SKU 編號、類別、單價、成本價、庫存、供應商
 
-## 快速开始
+### 客戶 (6 家台灣公司)
+- 台北科技股份有限公司
+- 新竹軟體科技有限公司
+- 台中製造工業股份有限公司
+- 高雄貿易企業有限公司
+- 桃園電子科技股份有限公司
+- 台南精密工業有限公司
+
+每個客戶包含：公司名稱、電子郵件、聯絡電話、地址
+
+### 訂單 (25 筆)
+- 過去 3 個月的歷史訂單
+- 自動生成訂單編號（ORD2410xxxx 格式）
+- 包含多種狀態：待處理、處理中、已完成、已取消
+- 完整的訂單項目和客戶資訊
+
+## 快速開始
 
 ### 前置要求
 
 - Python 3.8+
 - pip
 
-### 安装步骤
+### 安裝步驟
 
-#### 1. 安装ERP系统依赖
+#### 1. 安裝 ERP 系統依賴
 
 ```bash
 cd erp-system/backend
 pip install -r requirements.txt
 ```
 
-#### 2. 安装Agent依赖
+#### 2. 安裝 Agent 依賴
 
 ```bash
 cd agent
 pip install -r requirements.txt
 ```
 
-### 运行系统
+#### 3. 安裝 Ollama（LLM Agent 需要）
 
-#### 步骤1：启动ERP系统
+```bash
+# Linux / macOS
+curl -fsSL https://ollama.com/install.sh | sh
+
+# 下載推薦模型
+ollama pull qwen2.5:7b
+```
+
+詳細說明請查看：[OLLAMA_SETUP.md](OLLAMA_SETUP.md)
+
+### 運行系統
+
+#### 步驟1：啟動 ERP 系統
 
 ```bash
 ./start_erp.sh
 ```
 
-系统将在 http://localhost:8000 启动
-
-#### 步骤2：启动AI Agent
-
-**方式A：LLM版（推荐）- 更智能**
-
-首先安装Ollama（只需一次）：
+或手動啟動：
 ```bash
-# 安装Ollama
-curl -fsSL https://ollama.com/install.sh | sh
-
-# 下载模型（推荐Qwen 2.5）
-ollama pull qwen2.5:7b
+cd erp-system/backend
+python3 main.py
 ```
 
-然后启动LLM Agent：
+系統將在 http://localhost:8000 啟動
+
+#### 步驟2：啟動 LLM AI Agent
+
 ```bash
 ./start_llm_agent.sh
 ```
 
-详细说明请查看：[OLLAMA_SETUP.md](OLLAMA_SETUP.md)
-
-**方式B：规则版 - 更快速**
-
-```bash
-./start_agent.sh
-```
-
-#### 手动启动方式
-
-**启动ERP系统：**
-```bash
-cd erp-system/backend
-python main.py
-```
-
-**启动规则版Agent：**
+或手動啟動：
 ```bash
 cd agent
-python agent.py
+python3 llm_agent.py qwen2.5:7b
 ```
 
-**启动LLM版Agent：**
-```bash
-cd agent
-python llm_agent.py qwen2.5:7b
-```
+### 訪問系統
 
-### 访问系统
-
-- **Web界面**: http://localhost:8000
-- **API文档**: http://localhost:8000/docs
-- **规则版Agent**: 终端交互（固定指令模式）
-- **LLM版Agent**: 终端交互（自然语言理解）
+- **Web 界面**: http://localhost:8000
+- **API 文檔**: http://localhost:8000/docs
+- **LLM Agent**: 終端交互（自然語言理解）
 
 ## 使用示例
 
-### 1. 通过Web界面操作
+### 1. 通過 Web 界面操作
 
-1. 访问 http://localhost:8000
-2. 选择要使用的功能模块
-3. 在相应页面进行操作
+1. 訪問 http://localhost:8000
+2. 查看儀表板統計數據
+3. 使用側邊欄導航到各功能模組
+4. 在訂單管理創建新訂單
+5. 在庫存管理查看產品和補貨
+6. 在數據報表查看統計分析
 
-### 2. 通过AI Agent操作
+### 2. 通過 AI Agent 操作
 
-启动Agent后，可以使用自然语言指令：
+啟動 Agent 後，可以使用自然語言指令：
 
 ```
-Agent > 创建订单，客户是ABC公司，产品是笔记本电脑10台
-📝 解析任务...
-✓ 任务识别: 创建订单 - 客户: ABC公司
-⚙️  执行中...
+Agent (LLM) > 幫我給台北科技公司下個訂單，買10台 Dell Latitude 筆記本
+🤔 思考中...
+💭 用戶想要創建訂單，客戶是台北科技公司，產品是 Dell Latitude 5420 商務筆記本，數量10台
+⚙️  執行: create_order
 
-✅ 订单创建成功
+✅ 訂單創建成功
 
-  订单号: #1
-  客户: ABC公司
-  状态: pending
-  总金额: ¥59990.00
-  订单项:
-    - 笔记本电脑 x 10 = ¥59990.00
+  訂單編號: ORD2410025
+  客戶: 台北科技股份有限公司
+  狀態: pending
+  總金額: ¥72,990.00
 
-Agent > 查询库存不足的产品
-📝 解析任务...
-✓ 任务识别: 查询库存信息
-⚙️  执行中...
+Agent (LLM) > 查一下哪些產品庫存不夠了
+🤔 思考中...
+💭 需要查詢庫存預警
+⚙️  執行: get_stock_alerts
 
-✅ 找到 0 个库存预警
-
-  ✓ 所有产品库存充足
-
-Agent > 查看销售报表
-📝 解析任务...
-✓ 任务识别: 查询销售报表
-⚙️  执行中...
-
-✅ 销售报表查询成功
-
-  总订单数: 1
-  总收入: ¥0.00
-  已完成: 0
-  待处理: 1
-  已取消: 0
+✅ 找到 0 個庫存預警
+  ✓ 所有產品庫存充足
 ```
 
-## API文档
+## API 文檔
 
-启动ERP系统后，访问 http://localhost:8000/docs 可查看完整的API文档（Swagger UI）。
+啟動 ERP 系統後，訪問 http://localhost:8000/docs 可查看完整的 API 文檔（Swagger UI）。
 
-### 主要API端点
+### 主要 API 端點
 
-#### 产品管理
-- `GET /api/products` - 获取产品列表
-- `GET /api/products/{id}` - 获取单个产品
-- `POST /api/products` - 创建产品
-- `PUT /api/products/{id}` - 更新产品
-- `DELETE /api/products/{id}` - 删除产品
+#### 產品管理
+- `GET /api/products` - 獲取產品列表
+- `GET /api/products/{id}` - 獲取單個產品
+- `POST /api/products` - 創建產品
+- `PUT /api/products/{id}` - 更新產品
+- `DELETE /api/products/{id}` - 刪除產品
 
-#### 订单管理
-- `GET /api/orders` - 获取订单列表
-- `GET /api/orders/{id}` - 获取单个订单
-- `POST /api/orders` - 创建订单
-- `PUT /api/orders/{id}` - 更新订单状态
-- `DELETE /api/orders/{id}` - 删除订单
+#### 訂單管理
+- `GET /api/orders` - 獲取訂單列表
+- `GET /api/orders/{id}` - 獲取單個訂單
+- `POST /api/orders` - 創建訂單
+- `PUT /api/orders/{id}` - 更新訂單狀態
+- `DELETE /api/orders/{id}` - 刪除訂單
 
-#### 库存管理
-- `GET /api/inventory/alerts` - 获取库存预警
-- `POST /api/inventory/restock/{id}` - 补货
+#### 庫存管理
+- `GET /api/inventory/alerts` - 獲取庫存預警
+- `POST /api/inventory/restock/{id}` - 補貨
 
-#### 报表
-- `GET /api/reports/sales` - 获取销售报表
-- `GET /api/reports/inventory` - 获取库存报表
+#### 報表
+- `GET /api/reports/sales` - 獲取銷售報表
+- `GET /api/reports/inventory` - 獲取庫存報表
 
-## 演示场景
+## 項目結構
 
-### 场景1：处理新订单
+```
+AgentDemo/
+├── erp-system/              # ERP 系統
+│   ├── backend/            # 後端 API
+│   │   ├── main.py         # FastAPI 應用主文件
+│   │   ├── database.py     # 數據庫模型和初始化（含真實數據）
+│   │   ├── models.py       # Pydantic 模型
+│   │   └── requirements.txt
+│   └── frontend/           # 前端頁面
+│       ├── index.html      # 主頁儀表板
+│       ├── orders.html     # 訂單管理頁面
+│       ├── inventory.html  # 庫存管理頁面
+│       ├── reports.html    # 數據報表頁面
+│       ├── ai-chat.html    # AI 助手頁面
+│       └── style.css       # 共用樣式
+├── agent/                   # AI Agent 程序
+│   ├── llm_agent.py        # LLM 版 Agent（推薦）
+│   └── requirements.txt
+├── start_erp.sh            # ERP 系統啟動腳本
+├── start_llm_agent.sh      # LLM Agent 啟動腳本
+├── OLLAMA_SETUP.md         # Ollama 安裝配置指南
+├── CLAUDE.md               # Claude Code 開發指南
+└── README.md               # 項目文檔
+```
 
-1. **通过Web界面**：打开订单管理页面，填写表单创建订单
-2. **通过AI Agent**：直接说"创建订单，客户是XYZ公司，产品是显示器5台"
+## 常見問題
 
-### 场景2：库存监控与补货
+### Q: Agent 無法連接到 ERP 系統？
+A: 確保 ERP 系統已經啟動並運行在 http://localhost:8000
 
-1. **通过Web界面**：打开库存管理页面，查看预警，点击补货按钮
-2. **通过AI Agent**：
-   - "查询库存不足的产品" - 查看哪些产品需要补货
-   - "给打印机补货20台" - 直接执行补货操作
+### Q: Ollama 啟動失敗？
+A: 檢查端口 11434 是否被占用：
+```bash
+lsof -i :11434
+```
 
-### 场景3：数据分析
+### Q: 如何重置數據庫？
+A: 刪除數據庫文件，系統會自動重新創建：
+```bash
+rm erp-system/backend/erp_demo.db
+```
 
-1. **通过Web界面**：打开报表页面，查看各种统计数据
-2. **通过AI Agent**：
-   - "查看销售报表" - 获取销售统计
-   - "查看库存报表" - 获取库存分析
+### Q: 數據會被持久化嗎？
+A: 是的，數據保存在 SQLite 數據庫文件 `erp_demo.db` 中
 
-## 核心优势展示
+## 系統截圖
 
-### 传统方式 vs 规则版Agent vs LLM版Agent
+系統採用專業的企業級設計：
+- 🎨 深藍灰主色調配色方案
+- 📱 響應式側邊導航欄
+- 📊 實時數據統計卡片
+- ✨ 平滑的動畫效果
+- 🎯 清晰的狀態標識
 
-| 任务 | 传统Web界面 | 规则版Agent | LLM版Agent |
-|------|-----------|------------|-----------|
-| 创建订单 | 1. 打开浏览器<br>2. 导航到订单页面<br>3. 填写表单<br>4. 添加产品<br>5. 提交 | "创建订单，客户是ABC公司，产品是笔记本电脑10台" | "帮我给ABC公司下个订单，买10台笔记本" |
-| 查询库存预警 | 1. 打开库存页面<br>2. 浏览产品<br>3. 识别低库存 | "查询库存不足的产品" | "哪些产品库存不够了？" |
-| 复杂查询 | 需要多次操作和手动计算 | 不支持 | "库存最少的是什么？给它补货50个" |
-| 补货操作 | 1. 找到产品<br>2. 点击补货<br>3. 输入数量<br>4. 确认 | "给打印机补货20台" | "打印机补货20个" |
-| 数据分析 | 1. 打开报表<br>2. 查看数据<br>3. 手动分析 | "查看销售报表" | "这个月销售怎么样？哪个产品最热销？" |
-
-### Agent版本对比
-
-| 特性 | 规则版 | LLM版 |
-|------|--------|-------|
-| 自然语言理解 | ❌ 固定模式 | ✅ 灵活理解 |
-| 复杂任务 | ❌ 不支持 | ✅ 支持多步骤 |
-| 响应速度 | ⚡ 毫秒级 | 🐢 1-3秒 |
-| 安装配置 | ✅ 开箱即用 | 需要安装Ollama |
-| 运行成本 | 免费 | 免费（本地） |
-| 准确性 | 高（固定规则） | 中-高（取决于模型） |
-| 适用场景 | 快速演示 | 真实场景使用 |
-
-## 扩展可能性
-
-本演示项目可以进一步扩展：
-
-1. **集成真实的LLM** - 使用GPT、Claude等LLM提升自然语言理解能力
-2. **语音交互** - 添加语音输入/输出功能
-3. **多Agent协作** - 实现多个专门化Agent协同工作
-4. **自动化工作流** - Agent可以自动执行定期任务
-5. **智能建议** - 基于历史数据提供业务建议
-6. **异常检测** - 自动识别和报告异常情况
-
-## 常见问题
-
-### Q: Agent无法连接到ERP系统？
-A: 确保ERP系统已经启动并运行在 http://localhost:8000
-
-### Q: 如何添加新产品？
-A: 可以通过Web界面的库存管理页面，或直接在数据库中添加
-
-### Q: Agent支持哪些指令？
-A: 参考本文档的"AI Agent功能"部分，或在Agent中输入各种指令尝试
-
-### Q: 数据会被持久化吗？
-A: 是的，数据保存在SQLite数据库文件 `erp_demo.db` 中
-
-## 许可证
+## 許可證
 
 MIT License
 
-## 贡献
+## 貢獻
 
-欢迎提交Issue和Pull Request！
+歡迎提交 Issue 和 Pull Request！
 
-## 联系方式
+## 聯繫方式
 
-如有问题或建议，请通过GitHub Issues联系。
+如有問題或建議，請通過 GitHub Issues 聯繫。

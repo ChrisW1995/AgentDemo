@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent 助手 - ERP 系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: calc(100vh - 120px);
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+        .message-user {
+            margin-left: auto;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .message-ai {
+            background: white;
+            color: #2c3e50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .message-ai strong {
+            color: #3498db;
+        }
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+        .thinking {
+            display: none;
+            padding: 10px 18px;
+            background: #f0f0f0;
+            border-radius: 18px;
+            max-width: 70%;
+            margin-bottom: 15px;
+        }
+        .thinking.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h4><i class="bi bi-grid-3x3-gap-fill"></i> ERP 系統</h4><p>企業資源規劃管理平台</p></div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="bi bi-speedometer2"></i><span>儀表板</span></a></li>
+            <li class="nav-item"><a href="orders.html" class="nav-link"><i class="bi bi-cart-check-fill"></i><span>訂單管理</span></a></li>
+            <li class="nav-item"><a href="inventory.html" class="nav-link"><i class="bi bi-box-seam-fill"></i><span>庫存管理</span></a></li>
+            <li class="nav-item"><a href="reports.html" class="nav-link"><i class="bi bi-graph-up-arrow"></i><span>數據報表</span></a></li>
+            <li class="nav-item"><a href="ai-chat.html" class="nav-link active"><i class="bi bi-robot"></i><span>AI 助手</span></a></li>
+        </ul>
+        <div style="position: absolute; bottom: 30px; left: 20px; right: 20px;"><div class="ai-badge"><i class="bi bi-stars"></i> AI Agent 已啟用</div></div>
+    </div>
+    <div class="main-content">
+        <div class="top-navbar"><h2><i class="bi bi-robot"></i> AI Agent 助手</h2><div class="user-info"><span>系統管理員</span><div class="user-avatar">A</div></div></div>
+        <div class="content-wrapper" style="padding: 0;">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message message-ai">
+                        <strong><i class="bi bi-robot"></i> AI Agent</strong><br>
+                        您好！我是 ERP 系統的 AI 助手。我可以幫您完成以下操作：<br><br>
+                        📦 <strong>訂單管理</strong>：創建訂單、查詢訂單狀態<br>
+                        📊 <strong>庫存管理</strong>：查詢庫存、補貨操作<br>
+                        📈 <strong>數據報表</strong>：查看銷售和庫存統計<br><br>
+                        <em>例如：「幫我給台北科技公司下個訂單，買10台 Dell 筆記本」</em>
+                    </div>
+                </div>
+                <div class="thinking" id="thinking">
+                    <i class="bi bi-three-dots"></i> AI 正在思考中...
+                </div>
+                <div class="chat-input-area">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="userInput" placeholder="輸入您的指令..." onkeypress="handleKeyPress(event)">
+                        <button class="btn btn-primary" onclick="sendMessage()">
+                            <i class="bi bi-send-fill"></i> 發送
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i> 提示：請確保已啟動 Ollama 服務和 LLM Agent
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function addMessage(content, isUser) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message message-' + (isUser ? 'user' : 'ai');
+            if (!isUser) {
+                content = '<strong><i class="bi bi-robot"></i> AI Agent</strong><br>' + content;
+            }
+            messageDiv.innerHTML = content;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showThinking() {
+            document.getElementById('thinking').classList.add('show');
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+
+        function hideThinking() {
+            document.getElementById('thinking').classList.remove('show');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            input.value = '';
+            input.disabled = true;
+            showThinking();
+
+            try {
+                // 這裡需要實現與 Ollama LLM Agent 的通信
+                // 由於 LLM Agent 是命令行程序，這裡提供模擬響應
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                hideThinking();
+                addMessage(
+                    '抱歉，Web 版 AI Agent 需要後端 API 支持。<br><br>' +
+                    '請使用命令行版本：<br>' +
+                    '<code>cd agent && python llm_agent.py qwen2.5:7b</code><br><br>' +
+                    '或者，您可以直接在 ERP 系統頁面使用傳統方式操作。', 
+                    false
+                );
+            } catch (error) {
+                hideThinking();
+                addMessage('發生錯誤：' + error.message, false);
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        document.getElementById('userInput').focus();
+    </script>
+</body>
+</html>

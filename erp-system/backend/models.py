@@ -5,10 +5,14 @@ from datetime import datetime
 
 class ProductBase(BaseModel):
     name: str
+    sku: Optional[str] = None
+    category: Optional[str] = None
     description: Optional[str] = None
     price: float = Field(gt=0)
+    cost: Optional[float] = Field(None, gt=0)
     stock_quantity: int = Field(ge=0)
     min_stock_level: int = Field(ge=0, default=10)
+    supplier: Optional[str] = None
 
 
 class ProductCreate(ProductBase):
@@ -17,10 +21,14 @@ class ProductCreate(ProductBase):
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
+    sku: Optional[str] = None
+    category: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = Field(None, gt=0)
+    cost: Optional[float] = Field(None, gt=0)
     stock_quantity: Optional[int] = Field(None, ge=0)
     min_stock_level: Optional[int] = Field(None, ge=0)
+    supplier: Optional[str] = None
 
 
 class Product(ProductBase):
@@ -44,6 +52,7 @@ class OrderItem(OrderItemBase):
     order_id: int
     unit_price: float
     subtotal: float
+    discount: float = 0.0
     product: Optional[Product] = None
 
     class Config:
@@ -52,6 +61,10 @@ class OrderItem(OrderItemBase):
 
 class OrderBase(BaseModel):
     customer_name: str
+    customer_email: Optional[str] = None
+    customer_phone: Optional[str] = None
+    shipping_address: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class OrderCreate(OrderBase):
@@ -64,6 +77,7 @@ class OrderUpdate(BaseModel):
 
 class Order(OrderBase):
     id: int
+    order_number: Optional[str] = None
     order_date: datetime
     status: str
     total_amount: float

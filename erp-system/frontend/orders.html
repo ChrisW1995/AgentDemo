@@ -1,108 +1,511 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>订单管理 - ERP System</title>
+    <title>訂單管理 - ERP 系統</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f8f9fa;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--light-bg);
+            overflow-x: hidden;
         }
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        /* 側邊欄樣式（與 index.html 相同）*/
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 0;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 12px;
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h4 {
+            color: white;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .sidebar-header p {
+            color: rgba(255,255,255,0.7);
             font-size: 0.85rem;
+            margin: 5px 0 0 0;
         }
-        .status-pending { background-color: #ffc107; color: #000; }
-        .status-completed { background-color: #28a745; color: white; }
-        .status-cancelled { background-color: #dc3545; color: white; }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 5px 15px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            width: 24px;
+        }
+
+        /* 主內容區 */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .top-navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-navbar h2 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary-color);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        /* 卡片樣式 */
         .card {
+            background: white;
             border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-header.bg-success {
+            background: var(--success-color) !important;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* 表單樣式 */
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-secondary {
+            background: #7f8c8d;
+            border: none;
+        }
+
+        .btn-info {
+            background: var(--accent-color);
+            border: none;
+        }
+
+        /* 表格樣式 */
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--light-bg);
+            color: var(--primary-color);
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* 狀態徽章 */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+            color: #0a3622;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* 訂單項目列表 */
+        .order-items-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+
+        .order-items-list li {
+            background: var(--light-bg);
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 模態框 */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 20px 25px;
+        }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        /* 載入動畫 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        /* 響應式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <i class="bi bi-arrow-left-circle"></i> 返回主页
-            </a>
-            <span class="navbar-text text-white">
-                <i class="bi bi-cart-check-fill"></i> 订单管理
-            </span>
+    <!-- 側邊欄 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="bi bi-grid-3x3-gap-fill"></i> ERP 系統</h4>
+            <p>企業資源規劃管理平台</p>
         </div>
-    </nav>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>儀表板</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link active">
+                    <i class="bi bi-cart-check-fill"></i>
+                    <span>訂單管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="bi bi-box-seam-fill"></i>
+                    <span>庫存管理</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>數據報表</span>
+                </a>
+            </li>
+        </ul>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5><i class="bi bi-plus-circle"></i> 创建新订单</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="createOrderForm">
-                            <div class="mb-3">
-                                <label class="form-label">客户名称</label>
-                                <input type="text" class="form-control" id="customerName" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">选择产品</label>
-                                <select class="form-select" id="productSelect">
-                                    <option value="">选择产品...</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">数量</label>
-                                <input type="number" class="form-control" id="quantity" min="1" value="1">
-                            </div>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="addOrderItem()">
-                                <i class="bi bi-plus"></i> 添加到订单
-                            </button>
-                            <hr>
-                            <div id="orderItems" class="mb-3">
-                                <strong>订单项：</strong>
-                                <ul id="orderItemsList" class="list-unstyled mt-2"></ul>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-check-circle"></i> 创建订单
-                            </button>
-                        </form>
+        <div style="position: absolute; bottom: 30px; left: 20px; right: 20px;">
+            <div class="ai-badge">
+                <i class="bi bi-stars"></i>
+                AI Agent 已啟用
+            </div>
+        </div>
+    </div>
+
+    <!-- 主內容區 -->
+    <div class="main-content">
+        <!-- 頂部導航欄 -->
+        <div class="top-navbar">
+            <h2><i class="bi bi-cart-check-fill"></i> 訂單管理</h2>
+            <div class="user-info">
+                <span>系統管理員</span>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <!-- 內容區 -->
+        <div class="content-wrapper">
+            <div class="row">
+                <!-- 創建訂單表單 -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-plus-circle"></i> 創建新訂單
+                        </div>
+                        <div class="card-body">
+                            <form id="createOrderForm">
+                                <div class="mb-3">
+                                    <label class="form-label">客戶名稱 *</label>
+                                    <input type="text" class="form-control" id="customerName" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">客戶電子郵件</label>
+                                    <input type="email" class="form-control" id="customerEmail">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">客戶電話</label>
+                                    <input type="tel" class="form-control" id="customerPhone">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">配送地址</label>
+                                    <textarea class="form-control" id="shippingAddress" rows="2"></textarea>
+                                </div>
+                                <hr>
+                                <div class="mb-3">
+                                    <label class="form-label">選擇產品</label>
+                                    <select class="form-select" id="productSelect">
+                                        <option value="">選擇產品...</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">數量</label>
+                                    <input type="number" class="form-control" id="quantity" min="1" value="1">
+                                </div>
+                                <button type="button" class="btn btn-secondary w-100 mb-3" onclick="addOrderItem()">
+                                    <i class="bi bi-plus"></i> 添加到訂單
+                                </button>
+
+                                <div class="mb-3">
+                                    <strong>訂單項目：</strong>
+                                    <ul id="orderItemsList" class="order-items-list"></ul>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">備註</label>
+                                    <textarea class="form-control" id="notes" rows="2"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-check-circle"></i> 創建訂單
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h5><i class="bi bi-list-check"></i> 订单列表</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>订单号</th>
-                                        <th>客户名称</th>
-                                        <th>订单日期</th>
-                                        <th>总金额</th>
-                                        <th>状态</th>
-                                        <th>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ordersTableBody">
-                                    <tr>
-                                        <td colspan="6" class="text-center">加载中...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <!-- 訂單列表 -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-success">
+                            <i class="bi bi-list-check"></i> 訂單列表
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>訂單編號</th>
+                                            <th>客戶名稱</th>
+                                            <th>訂單日期</th>
+                                            <th>總金額</th>
+                                            <th>狀態</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ordersTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">載入中...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -110,16 +513,15 @@
         </div>
     </div>
 
-    <!-- 订单详情模态框 -->
+    <!-- 訂單詳情模態框 -->
     <div class="modal fade" id="orderDetailModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">订单详情</h5>
+                    <h5 class="modal-title"><i class="bi bi-receipt"></i> 訂單詳情</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="orderDetailBody">
-                </div>
+                <div class="modal-body" id="orderDetailBody"></div>
             </div>
         </div>
     </div>
@@ -130,7 +532,7 @@
         let products = [];
         let orderItems = [];
 
-        // 加载产品列表
+        // 載入產品列表
         async function loadProducts() {
             try {
                 const response = await fetch(`${API_BASE}/products`);
@@ -139,65 +541,100 @@
                 products.forEach(product => {
                     const option = document.createElement('option');
                     option.value = product.id;
-                    option.textContent = `${product.name} - ¥${product.price} (库存: ${product.stock_quantity})`;
+                    option.textContent = `${product.name} - ¥${product.price} (庫存: ${product.stock_quantity})`;
+                    option.dataset.name = product.name;
+                    option.dataset.price = product.price;
                     select.appendChild(option);
                 });
             } catch (error) {
-                console.error('加载产品失败:', error);
+                console.error('載入產品失敗:', error);
             }
         }
 
-        // 添加订单项
+        // 添加訂單項
         function addOrderItem() {
-            const productId = parseInt(document.getElementById('productSelect').value);
+            const select = document.getElementById('productSelect');
+            const productId = parseInt(select.value);
             const quantity = parseInt(document.getElementById('quantity').value);
 
             if (!productId || !quantity) {
-                alert('请选择产品和数量');
+                alert('請選擇產品和數量');
                 return;
             }
 
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
+            const selectedOption = select.options[select.selectedIndex];
+            const productName = selectedOption.dataset.name;
+            const price = parseFloat(selectedOption.dataset.price);
 
-            orderItems.push({ product_id: productId, quantity: quantity, product_name: product.name });
+            orderItems.push({
+                product_id: productId,
+                quantity: quantity,
+                product_name: productName,
+                price: price
+            });
             updateOrderItemsList();
+
+            // 重置選擇
+            document.getElementById('quantity').value = 1;
         }
 
-        // 更新订单项列表
+        // 更新訂單項列表
         function updateOrderItemsList() {
             const list = document.getElementById('orderItemsList');
             list.innerHTML = '';
+
+            if (orderItems.length === 0) {
+                list.innerHTML = '<li style="text-align: center; color: #7f8c8d;">尚未添加產品</li>';
+                return;
+            }
+
+            let total = 0;
             orderItems.forEach((item, index) => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
                 const li = document.createElement('li');
-                li.className = 'mb-1';
                 li.innerHTML = `
-                    ${item.product_name} x ${item.quantity}
+                    <div>
+                        <strong>${item.product_name}</strong><br>
+                        <small>數量: ${item.quantity} × ¥${item.price.toFixed(2)} = ¥${subtotal.toFixed(2)}</small>
+                    </div>
                     <button class="btn btn-sm btn-danger" onclick="removeOrderItem(${index})">
                         <i class="bi bi-trash"></i>
                     </button>
                 `;
                 list.appendChild(li);
             });
+
+            // 添加總計
+            const totalLi = document.createElement('li');
+            totalLi.style.background = 'var(--accent-color)';
+            totalLi.style.color = 'white';
+            totalLi.style.fontWeight = 'bold';
+            totalLi.innerHTML = `<div>訂單總額</div><div>¥${total.toFixed(2)}</div>`;
+            list.appendChild(totalLi);
         }
 
-        // 移除订单项
+        // 移除訂單項
         function removeOrderItem(index) {
             orderItems.splice(index, 1);
             updateOrderItemsList();
         }
 
-        // 创建订单
+        // 創建訂單
         document.getElementById('createOrderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (orderItems.length === 0) {
-                alert('请至少添加一个订单项');
+                alert('請至少添加一個訂單項');
                 return;
             }
 
             const orderData = {
                 customer_name: document.getElementById('customerName').value,
+                customer_email: document.getElementById('customerEmail').value || null,
+                customer_phone: document.getElementById('customerPhone').value || null,
+                shipping_address: document.getElementById('shippingAddress').value || null,
+                notes: document.getElementById('notes').value || null,
                 items: orderItems
             };
 
@@ -209,21 +646,21 @@
                 });
 
                 if (response.ok) {
-                    alert('订单创建成功！');
+                    alert('訂單創建成功！');
                     document.getElementById('createOrderForm').reset();
                     orderItems = [];
                     updateOrderItemsList();
                     loadOrders();
                 } else {
                     const error = await response.json();
-                    alert('创建失败: ' + error.detail);
+                    alert('創建失敗: ' + error.detail);
                 }
             } catch (error) {
-                alert('创建失败: ' + error.message);
+                alert('創建失敗: ' + error.message);
             }
         });
 
-        // 加载订单列表
+        // 載入訂單列表
         async function loadOrders() {
             try {
                 const response = await fetch(`${API_BASE}/orders`);
@@ -231,35 +668,59 @@
                 const tbody = document.getElementById('ordersTableBody');
                 tbody.innerHTML = '';
 
+                if (orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">暫無訂單</td></tr>';
+                    return;
+                }
+
                 orders.reverse().forEach(order => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>#${order.id}</td>
+                        <td><strong>${order.order_number || '#' + order.id}</strong></td>
                         <td>${order.customer_name}</td>
-                        <td>${new Date(order.order_date).toLocaleDateString('zh-CN')}</td>
-                        <td>¥${order.total_amount.toFixed(2)}</td>
+                        <td>${new Date(order.order_date).toLocaleString('zh-TW')}</td>
+                        <td><strong>¥${order.total_amount.toFixed(2)}</strong></td>
                         <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
                         <td>
-                            <button class="btn btn-sm btn-info" onclick="showOrderDetail(${order.id})">
+                            <button class="btn btn-sm btn-info" onclick="showOrderDetail(${order.id})" title="查看詳情">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-success" onclick="updateOrderStatus(${order.id}, 'completed')" ${order.status !== 'pending' ? 'disabled' : ''}>
-                                <i class="bi bi-check"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="updateOrderStatus(${order.id}, 'cancelled')" ${order.status !== 'pending' ? 'disabled' : ''}>
-                                <i class="bi bi-x"></i>
-                            </button>
+                            ${order.status === 'pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="updateOrderStatus(${order.id}, 'processing')" title="開始處理">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                            ` : ''}
+                            ${order.status === 'processing' ? `
+                                <button class="btn btn-sm btn-success" onclick="updateOrderStatus(${order.id}, 'completed')" title="完成訂單">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            ` : ''}
+                            ${order.status === 'pending' || order.status === 'processing' ? `
+                                <button class="btn btn-sm btn-danger" onclick="updateOrderStatus(${order.id}, 'cancelled')" title="取消訂單">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            ` : ''}
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (error) {
-                console.error('加载订单失败:', error);
+                console.error('載入訂單失敗:', error);
+                document.getElementById('ordersTableBody').innerHTML =
+                    '<tr><td colspan="6" class="text-center text-danger">載入失敗</td></tr>';
             }
         }
 
-        // 更新订单状态
+        // 更新訂單狀態
         async function updateOrderStatus(orderId, status) {
+            const statusText = {
+                'processing': '開始處理',
+                'completed': '完成',
+                'cancelled': '取消'
+            };
+
+            if (!confirm(`確定要${statusText[status]}此訂單嗎？`)) return;
+
             try {
                 const response = await fetch(`${API_BASE}/orders/${orderId}`, {
                     method: 'PUT',
@@ -268,17 +729,17 @@
                 });
 
                 if (response.ok) {
-                    alert('状态更新成功！');
+                    alert('狀態更新成功！');
                     loadOrders();
                 } else {
-                    alert('更新失败');
+                    alert('更新失敗');
                 }
             } catch (error) {
-                alert('更新失败: ' + error.message);
+                alert('更新失敗: ' + error.message);
             }
         }
 
-        // 显示订单详情
+        // 顯示訂單詳情
         async function showOrderDetail(orderId) {
             try {
                 const response = await fetch(`${API_BASE}/orders/${orderId}`);
@@ -286,46 +747,60 @@
 
                 let itemsHtml = '';
                 order.items.forEach(item => {
+                    const discount = item.discount > 0 ? ` (-${(item.discount * 100).toFixed(0)}%)` : '';
                     itemsHtml += `
                         <tr>
                             <td>${item.product.name}</td>
                             <td>${item.quantity}</td>
-                            <td>¥${item.unit_price.toFixed(2)}</td>
-                            <td>¥${item.subtotal.toFixed(2)}</td>
+                            <td>¥${item.unit_price.toFixed(2)}${discount}</td>
+                            <td><strong>¥${item.subtotal.toFixed(2)}</strong></td>
                         </tr>
                     `;
                 });
 
                 document.getElementById('orderDetailBody').innerHTML = `
-                    <div><strong>订单号:</strong> #${order.id}</div>
-                    <div><strong>客户名称:</strong> ${order.customer_name}</div>
-                    <div><strong>订单日期:</strong> ${new Date(order.order_date).toLocaleString('zh-CN')}</div>
-                    <div><strong>状态:</strong> <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>訂單編號：</strong>${order.order_number || '#' + order.id}</p>
+                            <p><strong>客戶名稱：</strong>${order.customer_name}</p>
+                            ${order.customer_email ? `<p><strong>電子郵件：</strong>${order.customer_email}</p>` : ''}
+                            ${order.customer_phone ? `<p><strong>聯絡電話：</strong>${order.customer_phone}</p>` : ''}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>訂單日期：</strong>${new Date(order.order_date).toLocaleString('zh-TW')}</p>
+                            <p><strong>訂單狀態：</strong><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></p>
+                            ${order.shipping_address ? `<p><strong>配送地址：</strong>${order.shipping_address}</p>` : ''}
+                            ${order.notes ? `<p><strong>備註：</strong>${order.notes}</p>` : ''}
+                        </div>
+                    </div>
                     <hr>
-                    <h6>订单项:</h6>
+                    <h6>訂單項目：</h6>
                     <table class="table table-sm">
                         <thead>
                             <tr>
-                                <th>产品</th>
-                                <th>数量</th>
-                                <th>单价</th>
-                                <th>小计</th>
+                                <th>產品</th>
+                                <th>數量</th>
+                                <th>單價</th>
+                                <th>小計</th>
                             </tr>
                         </thead>
                         <tbody>${itemsHtml}</tbody>
                     </table>
-                    <div class="text-end"><strong>总金额: ¥${order.total_amount.toFixed(2)}</strong></div>
+                    <div class="text-end mt-3">
+                        <h5>訂單總額：<strong class="text-primary">¥${order.total_amount.toFixed(2)}</strong></h5>
+                    </div>
                 `;
 
                 new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
             } catch (error) {
-                alert('加载详情失败: ' + error.message);
+                alert('載入詳情失敗: ' + error.message);
             }
         }
 
         function getStatusText(status) {
             const statusMap = {
-                'pending': '待处理',
+                'pending': '待處理',
+                'processing': '處理中',
                 'completed': '已完成',
                 'cancelled': '已取消'
             };
@@ -335,6 +810,8 @@
         // 初始化
         loadProducts();
         loadOrders();
+        updateOrderItemsList();
     </script>
+    <script src="ai-widget.js"></script>
 </body>
 </html>

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
+from pydantic import BaseModel
 import os
 
 from database import get_db, init_db, Product as DBProduct, Order as DBOrder, OrderItem as DBOrderItem
@@ -11,6 +12,7 @@ from models import (
     Order, OrderCreate, OrderUpdate,
     StockAlert, SalesReport, InventoryReport
 )
+from llm_agent import get_agent
 
 app = FastAPI(title="ERP System API", version="1.0.0")
 
@@ -110,8 +112,22 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
 @app.post("/api/orders", response_model=Order)
 def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     """创建新订单"""
+    from datetime import datetime
+
+    # 生成訂單編號
+    now = datetime.now()
+    count = db.query(DBOrder).count() + 1
+    order_number = f"ORD{now.year % 100:02d}{now.month:02d}{count:04d}"
+
     # 创建订单
-    db_order = DBOrder(customer_name=order.customer_name)
+    db_order = DBOrder(
+        order_number=order_number,
+        customer_name=order.customer_name,
+        customer_email=order.customer_email,
+        customer_phone=order.customer_phone,
+        shipping_address=order.shipping_address,
+        notes=order.notes
+    )
     db.add(db_order)
     db.flush()
 
@@ -159,10 +175,13 @@ def update_order(order_id: int, order: OrderUpdate, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Order not found")
 
     if order.status:
-        # 如果订单被取消，恢复库存
-        if order.status == "cancelled" and db_order.status != "cancelled":
+        # 如果訂單被取消，恢復庫存
+        if order.status == "cancelled" and db_order.status not in ["cancelled", "completed"]:
             for item in db_order.items:
                 item.product.stock_quantity += item.quantity
+
+        # 如果訂單從pending變為processing，不做庫存變動（在創建時已扣除）
+        # 如果訂單完成，也不做庫存變動
 
         db_order.status = order.status
 
@@ -291,6 +310,32 @@ def get_inventory_report(db: Session = Depends(get_db)):
         low_stock_products=low_stock_products,
         out_of_stock_count=out_of_stock_count
     )
+
+
+# ==================== AI Agent API ====================
+
+class ChatMessage(BaseModel):
+    message: str
+
+
+class ChatResponse(BaseModel):
+    response: str
+
+
+@app.post("/api/agent/chat", response_model=ChatResponse)
+def chat_with_agent(chat_message: ChatMessage):
+    """與 AI Agent 對話"""
+    agent = get_agent()
+    response = agent.chat(chat_message.message)
+    return ChatResponse(response=response)
+
+
+@app.post("/api/agent/reset")
+def reset_agent():
+    """重置 Agent 對話歷史"""
+    agent = get_agent()
+    agent.reset_conversation()
+    return {"message": "對話歷史已重置"}
 
 
 # ==================== 静态文件服务 ====================
