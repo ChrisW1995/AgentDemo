@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据报表 - ERP System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .stat-card p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-arrow-left-circle"></i> 返回主页
+            </a>
+            <span class="navbar-text text-white">
+                <i class="bi bi-graph-up-arrow"></i> 数据报表
+            </span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 销售报表 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h4><i class="bi bi-cash-stack"></i> 销售报表</h4>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <p>总订单数</p>
+                    <h3 id="totalOrders">-</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <p>总收入</p>
+                    <h3 id="totalRevenue">-</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <p>已完成订单</p>
+                    <h3 id="completedOrders">-</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <p>待处理订单</p>
+                    <h3 id="pendingOrders">-</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="bi bi-trophy-fill"></i> 热销产品 TOP 5</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>排名</th>
+                                        <th>产品名称</th>
+                                        <th>销售数量</th>
+                                        <th>销售额</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProductsTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center">加载中...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 库存报表 -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h4><i class="bi bi-box-seam"></i> 库存报表</h4>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <p>产品总数</p>
+                    <h3 id="totalProducts">-</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                    <p>库存总价值</p>
+                    <h3 id="totalStockValue">-</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333;">
+                    <p>缺货产品数</p>
+                    <h3 id="outOfStockCount">-</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5><i class="bi bi-exclamation-triangle-fill"></i> 低库存产品</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="lowStockProducts">
+                            <p class="text-muted">加载中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = '/api';
+
+        // 加载销售报表
+        async function loadSalesReport() {
+            try {
+                const response = await fetch(`${API_BASE}/reports/sales`);
+                const report = await response.json();
+
+                document.getElementById('totalOrders').textContent = report.total_orders;
+                document.getElementById('totalRevenue').textContent = '¥' + report.total_revenue.toFixed(2);
+                document.getElementById('completedOrders').textContent = report.completed_orders;
+                document.getElementById('pendingOrders').textContent = report.pending_orders;
+
+                // 热销产品
+                const tbody = document.getElementById('topProductsTableBody');
+                tbody.innerHTML = '';
+
+                if (report.top_products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">暂无数据</td></tr>';
+                } else {
+                    report.top_products.forEach((product, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>
+                                ${index === 0 ? '<i class="bi bi-trophy-fill text-warning"></i>' : ''}
+                                ${index === 1 ? '<i class="bi bi-trophy-fill text-secondary"></i>' : ''}
+                                ${index === 2 ? '<i class="bi bi-trophy-fill" style="color: #cd7f32;"></i>' : ''}
+                                #${index + 1}
+                            </td>
+                            <td><strong>${product.product_name}</strong></td>
+                            <td>${product.quantity}</td>
+                            <td>¥${product.revenue.toFixed(2)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (error) {
+                console.error('加载销售报表失败:', error);
+            }
+        }
+
+        // 加载库存报表
+        async function loadInventoryReport() {
+            try {
+                const response = await fetch(`${API_BASE}/reports/inventory`);
+                const report = await response.json();
+
+                document.getElementById('totalProducts').textContent = report.total_products;
+                document.getElementById('totalStockValue').textContent = '¥' + report.total_stock_value.toFixed(2);
+                document.getElementById('outOfStockCount').textContent = report.out_of_stock_count;
+
+                // 低库存产品
+                const container = document.getElementById('lowStockProducts');
+
+                if (report.low_stock_products.length === 0) {
+                    container.innerHTML = '<p class="text-success"><i class="bi bi-check-circle"></i> 所有产品库存充足</p>';
+                } else {
+                    container.innerHTML = '<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>产品名称</th><th>当前库存</th><th>最低库存</th><th>缺货数量</th></tr></thead><tbody>' +
+                        report.low_stock_products.map(product => `
+                            <tr>
+                                <td><strong>${product.product_name}</strong></td>
+                                <td class="text-danger">${product.current_stock}</td>
+                                <td>${product.min_stock_level}</td>
+                                <td class="text-warning">${product.shortage}</td>
+                            </tr>
+                        `).join('') +
+                        '</tbody></table></div>';
+                }
+            } catch (error) {
+                console.error('加载库存报表失败:', error);
+            }
+        }
+
+        // 初始化
+        loadSalesReport();
+        loadInventoryReport();
+
+        // 每30秒刷新一次
+        setInterval(() => {
+            loadSalesReport();
+            loadInventoryReport();
+        }, 30000);
+    </script>
+</body>
+</html>
